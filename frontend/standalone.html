@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartlytics – Analytics Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #0a0e1a;
+      --bg-card:     #111827;
+      --bg-card2:    #1a2235;
+      --border:      #1e2d45;
+      --border-2:    #253449;
+      --text:        #e2e8f0;
+      --text-muted:  #64748b;
+      --text-dim:    #94a3b8;
+      --accent:      #3b82f6;
+      --accent-glow: rgba(59,130,246,0.15);
+      --green:       #22c55e;
+      --green-bg:    rgba(34,197,94,0.1);
+      --red:         #ef4444;
+      --red-bg:      rgba(239,68,68,0.1);
+      --amber:       #f59e0b;
+      --purple:      #a855f7;
+      --cyan:        #06b6d4;
+      --radius:      10px;
+      --font:        'Inter', sans-serif;
+      --mono:        'JetBrains Mono', monospace;
+    }
+    html { font-size: 14px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+    input, select { font-family: inherit; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-mark {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 17px; font-weight: 700; letter-spacing: -0.4px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg,#3b82f6,#6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .logo-sub {
+      font-size: 10px; color: var(--text-muted); margin-top: 2px;
+      font-weight: 400; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .sidebar-nav { padding: 16px 12px; flex: 1; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 8px 8px 6px; margin-top: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--text-dim);
+      margin-bottom: 2px; transition: all .15s; cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--bg-card2); color: var(--text); }
+    .nav-item.active {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-left: 2px solid var(--accent);
+      padding-left: 8px;
+    }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .status-dot {
+      display: inline-block; width: 6px; height: 6px;
+      background: var(--green); border-radius: 50%; margin-right: 6px;
+    }
+
+    /* ── MAIN CONTENT ────────────────────────────────────────── */
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      height: 60px; background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; flex-shrink: 0;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title { font-size: 16px; font-weight: 600; }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+    .content { padding: 24px 28px; flex: 1; overflow: auto; }
+
+    /* ── DATE FILTER BAR ─────────────────────────────────────── */
+    .filter-bar {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 16px;
+      margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .filter-bar label {
+      font-size: 12px; color: var(--text-muted); font-weight: 500;
+    }
+    .filter-input {
+      background: var(--bg); border: 1px solid var(--border-2);
+      color: var(--text); border-radius: 6px; padding: 5px 10px;
+      font-size: 12px; outline: none;
+    }
+    .filter-input:focus { border-color: var(--accent); }
+    .filter-select {
+      background: var(--bg); border: 1px solid var(--border-2);
+      color: var(--text); border-radius: 6px; padding: 5px 10px;
+      font-size: 12px; outline: none; cursor: pointer;
+    }
+    .btn {
+      background: var(--accent); color: white; border: none;
+      border-radius: 6px; padding: 6px 14px; font-size: 12px;
+      font-weight: 600; transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-ghost {
+      background: var(--bg-card2); color: var(--text-dim); border: 1px solid var(--border-2);
+      border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 500;
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .quick-range {
+      display: flex; gap: 4px; margin-left: 4px;
+    }
+    .qr-btn {
+      background: var(--bg); border: 1px solid var(--border-2);
+      color: var(--text-muted); border-radius: 5px;
+      padding: 4px 8px; font-size: 11px; font-weight: 500;
+      cursor: pointer; transition: all .12s;
+    }
+    .qr-btn:hover, .qr-btn.active {
+      background: var(--accent-glow); color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ── KPI CARDS ───────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content:''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .kpi-card.blue::before   { background: var(--accent); }
+    .kpi-card.green::before  { background: var(--green); }
+    .kpi-card.purple::before { background: var(--purple); }
+    .kpi-card.amber::before  { background: var(--amber); }
+    .kpi-card.cyan::before   { background: var(--cyan); }
+    .kpi-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+      line-height: 1.1; margin-bottom: 6px;
+    }
+    .kpi-growth {
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .kpi-growth.up   { color: var(--green); }
+    .kpi-growth.down { color: var(--red); }
+    .kpi-growth.neutral { color: var(--text-muted); }
+    .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── CHART CARDS ─────────────────────────────────────────── */
+    .chart-row {
+      display: grid; gap: 14px; margin-bottom: 14px;
+    }
+    .chart-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .chart-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .chart-row.cols-1-2 { grid-template-columns: 1fr 2fr; }
+    .chart-row.cols-2-1 { grid-template-columns: 2fr 1fr; }
+
+    .chart-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+    }
+    .chart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .chart-title { font-size: 13px; font-weight: 600; }
+    .chart-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .chart-badge {
+      font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+      background: var(--accent-glow); color: var(--accent); letter-spacing: .3px;
+    }
+
+    /* ── TABLE ───────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      text-align: left; padding: 8px 12px;
+      color: var(--text-muted); font-weight: 600; font-size: 11px;
+      letter-spacing: 0.4px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border);
+      color: var(--text-dim); white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-card2); }
+    .td-main { color: var(--text); font-weight: 500; }
+    .td-num  { font-family: var(--mono); font-size: 12px; }
+    .td-pos  { color: var(--green); font-family: var(--mono); }
+    .td-neg  { color: var(--red);   font-family: var(--mono); }
+
+    /* ── BADGE ───────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 10px; letter-spacing: .3px;
+    }
+    .badge-blue   { background: var(--accent-glow); color: var(--accent); }
+    .badge-green  { background: var(--green-bg);    color: var(--green); }
+    .badge-amber  { background: rgba(245,158,11,.1); color: var(--amber); }
+    .badge-purple { background: rgba(168,85,247,.1); color: var(--purple); }
+    .badge-red    { background: var(--red-bg);      color: var(--red); }
+
+    /* ── RANK INDICATOR ──────────────────────────────────────── */
+    .rank { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+    .rank-1 { color: #fbbf24; }
+    .rank-2 { color: #9ca3af; }
+    .rank-3 { color: #b45309; }
+
+    /* ── DONUT / PIE LEGEND ──────────────────────────────────── */
+    .legend { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .legend-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .legend-pct { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+    /* ── PROGRESS BAR ────────────────────────────────────────── */
+    .prog-bar { height: 5px; background: var(--bg-card2); border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; }
+
+    /* ── LOADING / ERROR ─────────────────────────────────────── */
+    .skeleton { background: linear-gradient(90deg,var(--bg-card2) 25%,var(--border) 50%,var(--bg-card2) 75%); background-size:400% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+    .skeleton-kpi { height: 82px; }
+    .skeleton-chart { height: 220px; }
+    .error-box {
+      background: var(--red-bg); border: 1px solid var(--red);
+      color: var(--red); border-radius: var(--radius); padding: 12px 16px;
+      font-size: 13px; margin-bottom: 16px;
+    }
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 48px 0;
+      color: var(--text-muted); font-size: 13px; gap: 8px;
+    }
+    .empty-icon { font-size: 32px; }
+
+    /* ── SEARCH ──────────────────────────────────────────────── */
+    .search-input {
+      background: var(--bg); border: 1px solid var(--border-2);
+      color: var(--text); border-radius: 6px; padding: 6px 10px 6px 30px;
+      font-size: 12px; outline: none; width: 180px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: 8px center;
+    }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* ── TABS ────────────────────────────────────────────────── */
+    .tab-row { display: flex; gap: 4px; margin-bottom: 16px; }
+    .tab {
+      padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      color: var(--text-muted); cursor: pointer; border: none; background: none;
+      transition: all .12s;
+    }
+    .tab.active { background: var(--accent-glow); color: var(--accent); }
+    .tab:hover:not(.active) { background: var(--bg-card2); color: var(--text); }
+
+    /* ── REGION MAP GRID ─────────────────────────────────────── */
+    .region-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .region-tile {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .region-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .region-stat { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .region-stat-label { font-size: 11px; color: var(--text-muted); }
+    .region-stat-val   { font-size: 12px; font-weight: 600; font-family: var(--mono); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      .chart-row.cols-2 { grid-template-columns: 1fr; }
+      .chart-row.cols-1-2, .chart-row.cols-2-1 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { padding: 16px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+// ═══════════════════════════════════════════════════════════════
+// Cartlytics – Full React Dashboard  (single-file build)
+// ═══════════════════════════════════════════════════════════════
+
+import React, { useState, useEffect, useCallback, useMemo } from
+  "https://esm.sh/react@18";
+import { createRoot } from
+  "https://esm.sh/react-dom@18/client";
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  AreaChart, Area,
+} from "https://esm.sh/recharts@2";
+
+// ── MOCK DATA (replace fetch calls with real API in production) ──
+
+const COLORS = ["#3b82f6","#22c55e","#a855f7","#f59e0b","#06b6d4","#ef4444","#f97316","#8b5cf6","#14b8a6","#ec4899"];
+
+function mockMonthly() {
+  const rows = [];
+  for (let y = 2022; y <= 2024; y++) {
+    for (let m = 1; m <= 12; m++) {
+      if (y === 2024 && m > 9) break;
+      const base = 180000 + Math.sin((m + y * 3) * 0.8) * 40000 + Math.random() * 20000;
+      const rev  = Math.round(base);
+      const cost = Math.round(rev * (0.52 + Math.random() * 0.06));
+      rows.push({
+        month: `${y}-${String(m).padStart(2,"0")}`,
+        year: y, month_num: m,
+        total_orders: Math.round(180 + Math.random() * 80),
+        unique_customers: Math.round(120 + Math.random() * 60),
+        revenue: rev, cost,
+        profit: rev - cost,
+        profit_margin_pct: Math.round((rev - cost) / rev * 1000) / 10,
+      });
+    }
+  }
+  return rows;
+}
+
+function mockCategories() {
+  return [
+    { category_id:1, category_name:"Electronics",       revenue:1240000, profit:420000, cost:820000, total_orders:1840, units_sold:2140, profit_margin_pct:33.9 },
+    { category_id:2, category_name:"Clothing",          revenue:680000,  profit:290000, cost:390000, total_orders:2210, units_sold:4100, profit_margin_pct:42.6 },
+    { category_id:3, category_name:"Home & Garden",     revenue:490000,  profit:180000, cost:310000, total_orders:1320, units_sold:1890, profit_margin_pct:36.7 },
+    { category_id:4, category_name:"Sports & Outdoors", revenue:370000,  profit:142000, cost:228000, total_orders:990,  units_sold:1560, profit_margin_pct:38.4 },
+    { category_id:5, category_name:"Books",             revenue:96000,   profit:44000,  cost:52000,  total_orders:1870, units_sold:5200, profit_margin_pct:45.8 },
+  ];
+}
+
+function mockProducts(byRevenue=true) {
+  const p = [
+    { product_id:4,  sku:"EL-PHN-002", product_name:"iPhone 15 Pro",           category_name:"Electronics",   brand:"Apple",     revenue:620000, profit:234000, units_sold:518,  total_orders:512,  profit_margin_pct:37.7 },
+    { product_id:1,  sku:"EL-LAP-001", product_name:"ProBook 15 Laptop",        category_name:"Electronics",   brand:"TechPro",   revenue:410000, profit:200000, units_sold:456,  total_orders:448,  profit_margin_pct:48.8 },
+    { product_id:3,  sku:"EL-PHN-001", product_name:"Galaxy X12 Smartphone",   category_name:"Electronics",   brand:"Samsung",   revenue:290000, profit:86000,  units_sold:580,  total_orders:568,  profit_margin_pct:29.7 },
+    { product_id:16, sku:"SO-002",     product_name:"Running Shoes Pro",        category_name:"Sports",        brand:"SpeedRun",  revenue:187000, profit:65400,  units_sold:1558, total_orders:1480, profit_margin_pct:35.0 },
+    { product_id:2,  sku:"EL-LAP-002", product_name:"UltraSlim 13 Laptop",     category_name:"Electronics",   brand:"NovaTech",  revenue:165000, profit:86000,  units_sold:150,  total_orders:145,  profit_margin_pct:52.1 },
+    { product_id:14, sku:"HG-003",     product_name:"Smart Air Purifier",      category_name:"Home & Garden",  brand:"AirPure",   revenue:138000, profit:55000,  units_sold:690,  total_orders:674,  profit_margin_pct:39.9 },
+    { product_id:6,  sku:"EL-ACC-001", product_name:"Noise-Cancelling Headphones", category_name:"Electronics",brand:"SoundWave",revenue:124000, profit:68000,  units_sold:827,  total_orders:818,  profit_margin_pct:54.8 },
+    { product_id:5,  sku:"EL-PHN-003", product_name:"Pixel 8 Pro",             category_name:"Electronics",   brand:"Google",    revenue:112000, profit:40000,  units_sold:160,  total_orders:156,  profit_margin_pct:35.7 },
+    { product_id:12, sku:"HG-001",     product_name:"Cordless Drill Set",      category_name:"Home & Garden",  brand:"BuildRight",revenue:98000,  profit:41000,  units_sold:754,  total_orders:740,  profit_margin_pct:41.8 },
+    { product_id:15, sku:"SO-001",     product_name:"Yoga Mat Premium",        category_name:"Sports",        brand:"FlexFit",   revenue:76000,  profit:38000,  units_sold:1690, total_orders:1650, profit_margin_pct:50.0 },
+  ];
+  return byRevenue ? p : [...p].sort((a,b)=>b.profit-a.profit);
+}
+
+function mockCustomers() {
+  const segs = ["Consumer","Corporate","Home Office","Small Business"];
+  const regions = ["West","Northeast","South","Central","Northwest"];
+  return Array.from({length:20},(_,i)=>({
+    customer_id: i+1,
+    customer_name: ["Sophia Martinez","James Wilson","Emma Johnson","Liam Anderson","Olivia Davis",
+                    "Noah Brown","Isabella Garcia","William Taylor","Mia Jackson","James Lee",
+                    "Charlotte White","Oliver Harris","Amelia Clark","Elijah Lewis","Ava Robinson",
+                    "Lucas Walker","Harper Scott","Mason Hall","Evelyn Allen","Logan Young"][i],
+    email: `user${i+1}@example.com`,
+    segment: segs[i%4],
+    region: regions[i%5],
+    state: ["CA","NY","TX","FL","WA","IL","GA","PA","OH","NC","MA","CO","AZ","TN","OR","NV","VA","MI","MN","UT"][i],
+    total_orders: [28,24,22,19,18,16,15,14,13,12,11,10,10,9,9,8,8,7,7,6][i],
+    total_spent: [48200,39100,34800,29400,27600,24100,22800,21400,20100,18900,17800,16400,15900,14700,14200,13100,12800,11900,11400,10800][i],
+    avg_order_value: [1721,1629,1582,1547,1533,1506,1520,1528,1546,1575,1618,1640,1590,1633,1577,1637,1600,1700,1628,1800][i],
+    customer_type: i<14?"Returning":"New",
+    total_items: Math.round([28,24,22,19,18,16,15,14,13,12,11,10,10,9,9,8,8,7,7,6][i]*1.8),
+  }));
+}
+
+function mockNewVsReturning() {
+  return [
+    { customer_type:"Returning", count:312, pct:62.4 },
+    { customer_type:"New",       count:188, pct:37.6 },
+  ];
+}
+
+function mockFrequency() {
+  return [
+    {order_count:1, customers:188},{order_count:2, customers:124},
+    {order_count:3, customers:87}, {order_count:4, customers:56},
+    {order_count:5, customers:34}, {order_count:6, customers:24},
+    {order_count:7, customers:14}, {order_count:8, customers:10},
+    {order_count:9, customers:7},  {order_count:10, customers:4},
+  ];
+}
+
+function mockRegional() {
+  return [
+    { region:"West",      state:"CA", total_orders:748, unique_customers:184, revenue:612000, profit:228000, profit_margin_pct:37.3 },
+    { region:"Northeast", state:"NY", total_orders:622, unique_customers:156, revenue:508000, profit:189000, profit_margin_pct:37.2 },
+    { region:"South",     state:"TX", total_orders:534, unique_customers:138, revenue:436000, profit:162000, profit_margin_pct:37.2 },
+    { region:"Central",   state:"IL", total_orders:410, unique_customers:108, revenue:335000, profit:124000, profit_margin_pct:37.0 },
+    { region:"Northwest", state:"OR", total_orders:298, unique_customers:84,  revenue:244000, profit:90000,  profit_margin_pct:36.9 },
+    { region:"Southeast", state:"GA", total_orders:248, unique_customers:68,  revenue:203000, profit:75000,  profit_margin_pct:36.9 },
+    { region:"Southwest", state:"AZ", total_orders:224, unique_customers:62,  revenue:183000, profit:68000,  profit_margin_pct:37.2 },
+    { region:"North",     state:"MN", total_orders:168, unique_customers:46,  revenue:137000, profit:51000,  profit_margin_pct:37.2 },
+  ];
+}
+
+// ── FORMAT HELPERS ─────────────────────────────────────────────
+
+const fmt$ = (n, compact=false) => {
+  if (compact && n>=1e6) return "$"+(n/1e6).toFixed(1)+"M";
+  if (compact && n>=1e3) return "$"+(n/1e3).toFixed(0)+"K";
+  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n);
+};
+const fmtNum = n => new Intl.NumberFormat("en-US").format(n);
+const fmtPct = n => n==null?"N/A":(n>=0?"+":"")+n.toFixed(1)+"%";
+const fmtMonth = m => { const [y,mo]=m.split("-"); const d=new Date(+y,+mo-1,1); return d.toLocaleString("en-US",{month:"short",year:"2-digit"}); };
+
+// ── RECHARTS CUSTOM TOOLTIP ────────────────────────────────────
+
+const CustomTooltip = ({active,payload,label,prefix=""}) => {
+  if (!active||!payload?.length) return null;
+  return React.createElement("div",{style:{
+    background:"#111827",border:"1px solid #1e2d45",borderRadius:8,
+    padding:"10px 14px",fontSize:12,
+  }},
+    React.createElement("p",{style:{color:"#94a3b8",marginBottom:6,fontSize:11}},label),
+    payload.map((p,i)=>React.createElement("p",{key:i,style:{color:p.color,fontFamily:"monospace"}},
+      `${p.name}: ${prefix}${fmtNum(Math.round(p.value))}`
+    ))
+  );
+};
+
+// ── SKELETON ───────────────────────────────────────────────────
+
+const Skeleton = ({className=""}) =>
+  React.createElement("div",{className:`skeleton ${className}`});
+
+// ── KPI CARD ───────────────────────────────────────────────────
+
+const KpiCard = ({label,value,sub,growth,accent="blue"}) =>
+  React.createElement("div",{className:`kpi-card ${accent}`},
+    React.createElement("div",{className:"kpi-label"},label),
+    React.createElement("div",{className:"kpi-value"},value),
+    growth!=null&&React.createElement("div",{className:`kpi-growth ${growth>=0?"up":"down"}`},
+      growth>=0?"↑ ":"↓ ", fmtPct(Math.abs(growth))," vs prior period"
+    ),
+    sub&&React.createElement("div",{className:"kpi-sub"},sub)
+  );
+
+// ── CHART CARD ─────────────────────────────────────────────────
+
+const ChartCard = ({title,sub,badge,children,style={}}) =>
+  React.createElement("div",{className:"chart-card",style},
+    React.createElement("div",{className:"chart-header"},
+      React.createElement("div",null,
+        React.createElement("div",{className:"chart-title"},title),
+        sub&&React.createElement("div",{className:"chart-sub"},sub)
+      ),
+      badge&&React.createElement("span",{className:"chart-badge"},badge)
+    ),
+    children
+  );
+
+// ── TAB BAR ────────────────────────────────────────────────────
+
+const TabBar = ({tabs,active,onChange}) =>
+  React.createElement("div",{className:"tab-row"},
+    tabs.map(t=>React.createElement("button",{
+      key:t,className:`tab ${active===t?"active":""}`,
+      onClick:()=>onChange(t)
+    },t))
+  );
+
+// ── DATE FILTER BAR ────────────────────────────────────────────
+
+const FilterBar = ({range,onChange}) => {
+  const [local, setLocal] = useState(range);
+
+  const apply = () => onChange(local);
+
+  const quick = (label,days) => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - days);
+    const r = {
+      startDate: start.toISOString().slice(0,10),
+      endDate:   end.toISOString().slice(0,10),
+    };
+    setLocal(r);
+    onChange(r);
+  };
+
+  return React.createElement("div",{className:"filter-bar"},
+    React.createElement("label",null,"From"),
+    React.createElement("input",{
+      type:"date",className:"filter-input",value:local.startDate||"",
+      onChange:e=>setLocal({...local,startDate:e.target.value})
+    }),
+    React.createElement("label",null,"To"),
+    React.createElement("input",{
+      type:"date",className:"filter-input",value:local.endDate||"",
+      onChange:e=>setLocal({...local,endDate:e.target.value})
+    }),
+    React.createElement("button",{className:"btn",onClick:apply},"Apply"),
+    React.createElement("div",{className:"quick-range"},
+      [["30d",30],["90d",90],["1Y",365],["All",1100]].map(([l,d])=>
+        React.createElement("button",{key:l,className:"qr-btn",onClick:()=>quick(l,d)},l)
+      )
+    )
+  );
+};
+
+// ══════════════════════════════════════════════════════════════
+// PAGES
+// ══════════════════════════════════════════════════════════════
+
+// ── EXECUTIVE DASHBOARD ────────────────────────────────────────
+
+const ExecutivePage = ({range}) => {
+  const monthly    = mockMonthly();
+  const categories = mockCategories();
+
+  const kpis = {
+    total_revenue: 2876000, total_profit: 1076000,
+    total_orders: 8420, avg_order_value: 341.5,
+    total_customers: 500, revenue_growth_pct: 12.4,
+    profit_growth_pct: 8.7, repeat_customer_rate: 62.4,
+  };
+
+  const chartData = monthly.map(r=>({
+    name: fmtMonth(r.month),
+    Revenue: r.revenue, Profit: r.profit, Orders: r.total_orders,
+  }));
+
+  const catRev = categories.map(c=>({name:c.category_name, value:c.revenue}));
+
+  return React.createElement("div",null,
+    // KPI row
+    React.createElement("div",{className:"kpi-grid"},
+      React.createElement(KpiCard,{label:"Total Revenue",value:fmt$(kpis.total_revenue,true),growth:kpis.revenue_growth_pct,accent:"blue"}),
+      React.createElement(KpiCard,{label:"Total Profit",value:fmt$(kpis.total_profit,true),growth:kpis.profit_growth_pct,accent:"green"}),
+      React.createElement(KpiCard,{label:"Total Orders",value:fmtNum(kpis.total_orders),sub:"Excl. returns & cancellations",accent:"purple"}),
+      React.createElement(KpiCard,{label:"Avg Order Value",value:fmt$(kpis.avg_order_value),sub:"Per completed order",accent:"amber"}),
+      React.createElement(KpiCard,{label:"Total Customers",value:fmtNum(kpis.total_customers),sub:`${kpis.repeat_customer_rate}% repeat rate`,accent:"cyan"}),
+    ),
+
+    // Revenue area chart
+    React.createElement("div",{className:"chart-row"},
+      React.createElement(ChartCard,{title:"Monthly Revenue & Profit",sub:"2022 – 2024",badge:"Trend"},
+        React.createElement(ResponsiveContainer,{width:"100%",height:220},
+          React.createElement(AreaChart,{data:chartData,margin:{top:4,right:4,bottom:0,left:0}},
+            React.createElement("defs",null,
+              React.createElement("linearGradient",{id:"gRev",x1:"0",y1:"0",x2:"0",y2:"1"},
+                React.createElement("stop",{offset:"5%",stopColor:"#3b82f6",stopOpacity:0.25}),
+                React.createElement("stop",{offset:"95%",stopColor:"#3b82f6",stopOpacity:0})
+              ),
+              React.createElement("linearGradient",{id:"gPro",x1:"0",y1:"0",x2:"0",y2:"1"},
+                React.createElement("stop",{offset:"5%",stopColor:"#22c55e",stopOpacity:0.2}),
+                React.createElement("stop",{offset:"95%",stopColor:"#22c55e",stopOpacity:0})
+              )
+            ),
+            React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:"#1e2d45"}),
+            React.createElement(XAxis,{dataKey:"name",tick:{fill:"#64748b",fontSize:10},tickLine:false,axisLine:false,interval:2}),
+            React.createElement(YAxis,{tick:{fill:"#64748b",fontSize:10},tickLine:false,axisLine:false,tickFormatter:v=>fmt$(v,true),width:55}),
+            React.createElement(Tooltip,{content:React.createElement(CustomTooltip,{prefix:"$"})}),
+            React.createElement(Legend,{wrapperStyle:{fontSize:12,color:"#94a3b8"}}),
+            React.createElement(Area,{type:"monotone",dataKey:"Revenue",stroke:"#3b82f6",fill:"url(#gRev)",strokeWidth:2,dot:false}),
+            React.createElement(Area,{type:"monotone",dataKey:"Profit", stroke:"#22c55e",fill:"url(#gPro)", strokeWidth:2,dot:false})
+          )
+        )
+      )
+    ),
+
+    // Category charts
+    React.createElement("div",{className:"chart-row cols-2"},
+      React.createElement(ChartCard,{title:"Revenue by Category"},
+        React.createElement(ResponsiveContainer,{width:"100%",height:200},
+          React.createElement(BarChart,{data:categories,layout:"vertical",margin:{top:0,right:20,bottom:0,left:0}},
+            React.createElement(XAxis,{type:"number",tick:{fill:"#64748b",fontSize:10},tickFormatter:v=>fmt$(v,true),axisLine:false,tickLine:false}),
+            React.createElement(YAxis,{type:"category",dataKey:"category_name",tick:{fill:"#94a3b8",fontSize:11},axisLine:false,tickLine:false,width:110}),
+            React.createElement(Tooltip,{content:React.createElement(CustomTooltip,{prefix:"$"})}),
+            React.createElement(Bar,{dataKey:"revenue",name:"Revenue",fill:"#3b82f6",radius:[0,4,4,0]})
+          )
+        )
+      ),
+      React.createElement(ChartCard,{title:"Profit by Category"},
+        React.createElement(ResponsiveContainer,{width:"100%",height:200},
+          React.createElement(BarChart,{data:categories,layout:"vertical",margin:{top:0,right:20,bottom:0,left:0}},
+            React.createElement(XAxis,{type:"number",tick:{fill:"#64748b",fontSize:10},tickFormatter:v=>fmt$(v,true),axisLine:false,tickLine:false}),
+            React.createElement(YAxis,{type:"category",dataKey:"category_name",tick:{fill:"#94a3b8",fontSize:11},axisLine:false,tickLine:false,width:110}),
+            React.createElement(Tooltip,{content:React.createElement(CustomTooltip,{prefix:"$"})}),
+            React.createElement(Bar,{dataKey:"profit",name:"Profit",fill:"#22c55e",radius:[0,4,4,0]})
+          )
+        )
+      )
+    )
+  );
+};
+
+// ── PRODUCT DASHBOARD ──────────────────────────────────────────
+
+const ProductPage = ({range}) => {
+  const [tab, setTab]     = useState("Revenue");
+  const [search, setSearch] = useState("");
+  const products = mockProducts(tab==="Revenue");
+
+  const filtered = products.filter(p=>
+    p.product_name.toLowerCase().includes(search.toLowerCase()) ||
+    p.category_name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const maxRev = Math.max(...products.map(p=>p.revenue));
+
+  const segData = mockCategories().map(c=>({name:c.category_name,value:c.revenue}));
+
+  return React.createElement("div",null,
+    // Tab + search
+    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}},
+      React.createElement(TabBar,{tabs:["Revenue","Profit"],active:tab,onChange:setTab}),
+      React.createElement("input",{className:"search-input",placeholder:"Search products…",
+        value:search,onChange:e=>setSearch(e.target.value)})
+    ),
+
+    React.createElement("div",{className:"chart-row cols-2-1"},
+      // Top products table
+      React.createElement(ChartCard,{title:`Top 10 Products by ${tab}`,sub:"Filtered by date range"},
+        React.createElement("div",{className:"table-wrap"},
+          React.createElement("table",null,
+            React.createElement("thead",null,
+              React.createElement("tr",null,
+                React.createElement("th",null,"#"),
+                React.createElement("th",null,"Product"),
+                React.createElement("th",null,"Category"),
+                React.createElement("th",null,"Units"),
+                React.createElement("th",null,tab==="Revenue"?"Revenue":"Profit"),
+                React.createElement("th",null,"Margin"),
+                React.createElement("th",null,"Bar"),
+              )
+            ),
+            React.createElement("tbody",null,
+              filtered.map((p,i)=>React.createElement("tr",{key:p.product_id},
+                React.createElement("td",null, React.createElement("span",{className:`rank rank-${i+1}`},`#${i+1}`)),
+                React.createElement("td",null,
+                  React.createElement("div",{className:"td-main",style:{maxWidth:160,overflow:"hidden",textOverflow:"ellipsis"}},p.product_name),
+                  React.createElement("div",{style:{fontSize:10,color:"#64748b",fontFamily:"monospace"}},p.sku)
+                ),
+                React.createElement("td",null, React.createElement("span",{className:"badge badge-blue"},p.category_name)),
+                React.createElement("td",{className:"td-num"},fmtNum(p.units_sold)),
+                React.createElement("td",{className:"td-num td-pos"},fmt$(tab==="Revenue"?p.revenue:p.profit,true)),
+                React.createElement("td",{className:"td-num"},p.profit_margin_pct.toFixed(1)+"%"),
+                React.createElement("td",{style:{width:80}},
+                  React.createElement("div",{className:"prog-bar"},
+                    React.createElement("div",{className:"prog-fill",style:{
+                      width: Math.round((tab==="Revenue"?p.revenue:p.profit)/maxRev*100)+"%",
+                      background: tab==="Revenue"?"#3b82f6":"#22c55e"
+                    }})
+                  )
+                )
+              ))
+            )
+          )
+        )
+      ),
+
+      // Donut – category share
+      React.createElement(ChartCard,{title:"Category Mix",sub:"Revenue share"},
+        React.createElement(ResponsiveContainer,{width:"100%",height:180},
+          React.createElement(PieChart,null,
+            React.createElement(Pie,{data:segData,cx:"50%",cy:"50%",innerRadius:50,outerRadius:78,dataKey:"value",stroke:"none"},
+              segData.map((_,i)=>React.createElement(Cell,{key:i,fill:COLORS[i]}))
+            ),
+            React.createElement(Tooltip,{formatter:v=>[fmt$(v,true),"Revenue"]})
+          )
+        ),
+        React.createElement("div",{className:"legend"},
+          segData.map((d,i)=>React.createElement("div",{key:i,className:"legend-item"},
+            React.createElement("div",{className:"legend-dot",style:{background:COLORS[i]}}),
+            React.createElement("span",null,d.name),
+            React.createElement("span",{className:"legend-pct"},fmt$(d.value,true))
+          ))
+        )
+      )
+    )
+  );
+};
+
+// ── CUSTOMER DASHBOARD ─────────────────────────────────────────
+
+const CustomerPage = ({range}) => {
+  const customers  = mockCustomers();
+  const nvr        = mockNewVsReturning();
+  const freq       = mockFrequency();
+  const [search, setSearch] = useState("");
+
+  const filtered = customers.filter(c=>
+    c.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+    c.segment.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const segBadge = s => ({
+    Consumer:"badge-blue",Corporate:"badge-purple",
+    "Home Office":"badge-amber","Small Business":"badge-green"
+  }[s]||"badge-blue");
+
+  return React.createElement("div",null,
+    // New vs Returning + Frequency
+    React.createElement("div",{className:"chart-row cols-2"},
+      React.createElement(ChartCard,{title:"New vs Returning Customers",sub:"By order count"},
+        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:24,marginBottom:12}},
+          nvr.map(r=>React.createElement("div",{key:r.customer_type,style:{textAlign:"center"}},
+            React.createElement("div",{style:{fontSize:28,fontWeight:700,color:r.customer_type==="Returning"?"#3b82f6":"#22c55e"}},r.pct+"%"),
+            React.createElement("div",{style:{fontSize:11,color:"#64748b",marginTop:2}},r.customer_type),
+            React.createElement("div",{style:{fontSize:12,color:"#94a3b8"}},fmtNum(r.count)+" customers")
+          ))
+        ),
+        React.createElement(ResponsiveContainer,{width:"100%",height:140},
+          React.createElement(PieChart,null,
+            React.createElement(Pie,{data:nvr,cx:"50%",cy:"50%",innerRadius:40,outerRadius:60,dataKey:"count",stroke:"none"},
+              React.createElement(Cell,{fill:"#3b82f6"}),
+              React.createElement(Cell,{fill:"#22c55e"})
+            ),
+            React.createElement(Tooltip,{formatter:(v,n)=>[fmtNum(v)+" customers",n]})
+          )
+        )
+      ),
+      React.createElement(ChartCard,{title:"Purchase Frequency Distribution",sub:"Orders per customer"},
+        React.createElement(ResponsiveContainer,{width:"100%",height:200},
+          React.createElement(BarChart,{data:freq,margin:{top:4,right:4,bottom:0,left:0}},
+            React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:"#1e2d45",vertical:false}),
+            React.createElement(XAxis,{dataKey:"order_count",tick:{fill:"#64748b",fontSize:10},axisLine:false,tickLine:false,label:{value:"Orders",position:"insideBottom",fill:"#64748b",fontSize:10,offset:-4}}),
+            React.createElement(YAxis,{tick:{fill:"#64748b",fontSize:10},axisLine:false,tickLine:false,width:35}),
+            React.createElement(Tooltip,{content:React.createElement(CustomTooltip,{prefix:""})}),
+            React.createElement(Bar,{dataKey:"customers",name:"Customers",fill:"#a855f7",radius:[4,4,0,0]})
+          )
+        )
+      )
+    ),
+
+    // Top customers table
+    React.createElement(ChartCard,{title:"Top Customers by Spending",
+      sub:"Lifetime value · filtered by date range"},
+      React.createElement("div",{style:{marginBottom:12}},
+        React.createElement("input",{className:"search-input",placeholder:"Search customers…",
+          value:search,onChange:e=>setSearch(e.target.value)})
+      ),
+      React.createElement("div",{className:"table-wrap"},
+        React.createElement("table",null,
+          React.createElement("thead",null,
+            React.createElement("tr",null,
+              ["#","Customer","Segment","Region","Orders","Total Spent","AOV","Type"].map(h=>
+                React.createElement("th",{key:h},h)
+              )
+            )
+          ),
+          React.createElement("tbody",null,
+            filtered.map((c,i)=>React.createElement("tr",{key:c.customer_id},
+              React.createElement("td",null, React.createElement("span",{className:`rank rank-${i+1}`},`#${i+1}`)),
+              React.createElement("td",null,
+                React.createElement("div",{className:"td-main"},c.customer_name),
+                React.createElement("div",{style:{fontSize:10,color:"#64748b"}},c.state)
+              ),
+              React.createElement("td",null, React.createElement("span",{className:`badge ${segBadge(c.segment)}`},c.segment)),
+              React.createElement("td",{className:"td-num"},c.region),
+              React.createElement("td",{className:"td-num"},fmtNum(c.total_orders)),
+              React.createElement("td",{className:"td-num td-pos"},fmt$(c.total_spent,true)),
+              React.createElement("td",{className:"td-num"},fmt$(c.avg_order_value)),
+              React.createElement("td",null, React.createElement("span",{className:`badge ${c.customer_type==="Returning"?"badge-blue":"badge-green"}`},c.customer_type))
+            ))
+          )
+        )
+      )
+    )
+  );
+};
+
+// ── GEOGRAPHY DASHBOARD ────────────────────────────────────────
+
+const GeographyPage = ({range}) => {
+  const regions = mockRegional();
+
+  const barData = regions.map(r=>({
+    name: r.region, Revenue:r.revenue, Profit:r.profit,
+  }));
+
+  const maxRev = Math.max(...regions.map(r=>r.revenue));
+
+  return React.createElement("div",null,
+    // Bar chart
+    React.createElement(ChartCard,{title:"Revenue & Profit by Region",sub:"Completed orders only",style:{marginBottom:14}},
+      React.createElement(ResponsiveContainer,{width:"100%",height:220},
+        React.createElement(BarChart,{data:barData,margin:{top:4,right:4,bottom:0,left:0}},
+          React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:"#1e2d45",vertical:false}),
+          React.createElement(XAxis,{dataKey:"name",tick:{fill:"#64748b",fontSize:10},axisLine:false,tickLine:false}),
+          React.createElement(YAxis,{tick:{fill:"#64748b",fontSize:10},axisLine:false,tickLine:false,tickFormatter:v=>fmt$(v,true),width:55}),
+          React.createElement(Tooltip,{content:React.createElement(CustomTooltip,{prefix:"$"})}),
+          React.createElement(Legend,{wrapperStyle:{fontSize:12,color:"#94a3b8"}}),
+          React.createElement(Bar,{dataKey:"Revenue",fill:"#3b82f6",radius:[4,4,0,0]}),
+          React.createElement(Bar,{dataKey:"Profit", fill:"#22c55e",radius:[4,4,0,0]})
+        )
+      )
+    ),
+
+    // Region tiles
+    React.createElement("div",{className:"region-grid"},
+      regions.map(r=>React.createElement("div",{key:r.region,className:"region-tile"},
+        React.createElement("div",{className:"region-name"},r.region),
+        React.createElement("div",{className:"prog-bar",style:{marginBottom:10}},
+          React.createElement("div",{className:"prog-fill",style:{
+            width:Math.round(r.revenue/maxRev*100)+"%",background:"#3b82f6"
+          }})
+        ),
+        [
+          ["Revenue",   fmt$(r.revenue,true)],
+          ["Profit",    fmt$(r.profit,true)],
+          ["Orders",    fmtNum(r.total_orders)],
+          ["Customers", fmtNum(r.unique_customers)],
+          ["Margin",    r.profit_margin_pct.toFixed(1)+"%"],
+        ].map(([l,v])=>React.createElement("div",{key:l,className:"region-stat"},
+          React.createElement("span",{className:"region-stat-label"},l),
+          React.createElement("span",{className:"region-stat-val"},v)
+        ))
+      ))
+    )
+  );
+};
+
+// ══════════════════════════════════════════════════════════════
+// APP SHELL
+// ══════════════════════════════════════════════════════════════
+
+const NAV = [
+  { id:"executive",  label:"Executive",  icon:"📊", page:"Overview" },
+  { id:"products",   label:"Products",   icon:"📦", page:"Products" },
+  { id:"customers",  label:"Customers",  icon:"👥", page:"Customers" },
+  { id:"geography",  label:"Geography",  icon:"🗺️",  page:"Geography" },
+];
+
+const PAGE_TITLES = {
+  executive:  { title:"Executive Dashboard",  sub:"Revenue, profit & growth at a glance" },
+  products:   { title:"Product Dashboard",    sub:"Top performers, category mix & profitability" },
+  customers:  { title:"Customer Dashboard",   sub:"Spend analysis, segments & purchase patterns" },
+  geography:  { title:"Geography Dashboard",  sub:"Regional revenue, profit & market reach" },
+};
+
+function App() {
+  const [page,  setPage]  = useState("executive");
+  const [range, setRange] = useState({ startDate:"2022-01-01", endDate:"2024-09-30" });
+
+  const { title, sub } = PAGE_TITLES[page];
+
+  const PageComp = {
+    executive:  ExecutivePage,
+    products:   ProductPage,
+    customers:  CustomerPage,
+    geography:  GeographyPage,
+  }[page];
+
+  return React.createElement("div",{className:"shell"},
+    // Sidebar
+    React.createElement("aside",{className:"sidebar"},
+      React.createElement("div",{className:"sidebar-logo"},
+        React.createElement("div",{className:"logo-mark"},
+          React.createElement("div",{className:"logo-icon"},"📈"),
+          React.createElement("div",null,
+            React.createElement("div",null,"Cartlytics"),
+            React.createElement("div",{className:"logo-sub"},"Analytics Platform")
+          )
+        )
+      ),
+      React.createElement("nav",{className:"sidebar-nav"},
+        React.createElement("div",{className:"nav-section-label"},"Dashboards"),
+        NAV.map(n=>React.createElement("button",{
+          key:n.id, className:`nav-item ${page===n.id?"active":""}`,
+          onClick:()=>setPage(n.id)
+        },
+          React.createElement("span",{className:"nav-icon"},n.icon),
+          n.label
+        ))
+      ),
+      React.createElement("div",{className:"sidebar-footer"},
+        React.createElement("span",{className:"status-dot"}),
+        "Live · MySQL + FastAPI"
+      )
+    ),
+
+    // Main
+    React.createElement("main",{className:"main"},
+      React.createElement("div",{className:"topbar"},
+        React.createElement("div",null,
+          React.createElement("div",{className:"topbar-title"},title),
+          React.createElement("div",{className:"topbar-sub"},sub)
+        ),
+        React.createElement("div",{className:"topbar-actions"},
+          React.createElement("span",{style:{fontSize:11,color:"#64748b"}},
+            "Data: 2022 – 2024 · 3,000 orders · 500 customers"
+          )
+        )
+      ),
+      React.createElement("div",{className:"content"},
+        React.createElement(FilterBar,{range,onChange:setRange}),
+        React.createElement(PageComp,{range})
+      )
+    )
+  );
+}
+
+createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>

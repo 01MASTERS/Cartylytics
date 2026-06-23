@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+*.so
+
+# Environment
+.env
+*.env.local
+*.env.*.local
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Data
+datasets/raw/
+datasets/powerbi_exports/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# MySQL
+*.sql.bak
+
+# Coverage
+htmlcov/
+.coverage
+.pytest_cache/
