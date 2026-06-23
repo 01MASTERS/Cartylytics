@@ -46,7 +46,6 @@ Cartlytics provides insights across four distinct domains:
 
 ### Screenshots
 
-> **Note:** Take screenshots of your running dashboards and save them in a `docs/assets/` folder, or just replace the image paths below with your screenshot files.
 
 | Executive Dashboard | Products Dashboard |
 |:---:|:---:|
@@ -79,7 +78,7 @@ Cartlytics provides insights across four distinct domains:
 
 ---
 
-## Quick Start (Docker Recommended)
+## Quick Start 
 
 The easiest way to get Cartlytics running is using Docker. This will spin up the database, the API backend, and the React frontend simultaneously.
 
@@ -209,8 +208,7 @@ python scripts/export_powerbi.py
 # Files exported to → datasets/powerbi_exports/
 ```
 
-**Recommended Data Model in Power BI:**
-Set up a Star Schema with `orders_flat` as your central fact table, connecting out to `dim_customer`, `dim_product`, `dim_category`, and a `dim_date` table.
+
 
 ---
 
