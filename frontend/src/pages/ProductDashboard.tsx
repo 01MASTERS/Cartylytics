@@ -39,7 +39,7 @@ export const ProductDashboard: React.FC<Props> = ({ range }) => {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div className="dash-controls">
         <TabBar tabs={["Revenue", "Profit"]} active={tab} onChange={setTab} />
         <input
           placeholder="Search products…"
@@ -47,7 +47,7 @@ export const ProductDashboard: React.FC<Props> = ({ range }) => {
           onChange={e => setSearch(e.target.value)}
           style={{
             background: "var(--bg)", border: "1px solid var(--border-2)", color: "var(--text)",
-            borderRadius: 6, padding: "6px 10px 6px 28px", fontSize: 12, outline: "none", width: 180,
+            borderRadius: 6, padding: "6px 10px 6px 10px", fontSize: 12, outline: "none", width: 180,
           }}
         />
       </div>

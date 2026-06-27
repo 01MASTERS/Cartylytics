@@ -240,3 +240,22 @@ input, select { font-family: inherit; }
 .mobile-menu-btn {
   display: none;
 }
+
+.dash-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 768px) {
+  .dash-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dash-controls input {
+    width: 100% !important;
+  }
+}
+

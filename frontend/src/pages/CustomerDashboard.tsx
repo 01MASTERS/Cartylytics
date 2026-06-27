@@ -79,7 +79,7 @@ export const CustomerDashboard: React.FC<Props> = ({ range }) => {
 
       {/* Top customers table */}
       <ChartCard title="Top Customers by Lifetime Spending" sub="Filtered by date range">
-        <div style={{ marginBottom: 12 }}>
+        <div className="dash-controls">
           <input
             placeholder="Search customers…"
             value={search}
