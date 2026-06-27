@@ -60,7 +60,7 @@ export const GeographyDashboard: React.FC<Props> = ({ range }) => {
       </ChartCard>
 
       {/* Region tiles grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
+      <div className="geo-grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
             <div key={i} style={{ height: 140, background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius)" }} />

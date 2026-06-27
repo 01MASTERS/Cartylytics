@@ -52,7 +52,7 @@ export const ProductDashboard: React.FC<Props> = ({ range }) => {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
+      <div className="chart-grid-2-1">
         {/* Table */}
         <ChartCard title={`Top 10 Products by ${tab}`} sub="Filtered by date range & category">
           <div style={{ overflowX: "auto" }}>

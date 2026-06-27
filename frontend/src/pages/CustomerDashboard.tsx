@@ -31,14 +31,14 @@ export const CustomerDashboard: React.FC<Props> = ({ range }) => {
   return (
     <div>
       {/* Top row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="chart-grid">
         {/* New vs Returning */}
         <ChartCard title="New vs Returning Customers" sub="By order count in period">
           {nL ? <div style={{ height: 200, background: "var(--bg-card2)", borderRadius: 6 }} />
             : (
               <>
                 <div style={{ display: "flex", gap: 24, marginBottom: 12 }}>
-                  {(nvr ?? []).map((r, i) => (
+                  {(nvr ?? []).map((r: any, i: number) => (
                     <div key={r.customer_type} style={{ textAlign: "center" }}>
                       <div style={{ fontSize: 28, fontWeight: 700, color: nvrColors[i] }}>{r.pct}%</div>
                       <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{r.customer_type}</div>
@@ -49,7 +49,7 @@ export const CustomerDashboard: React.FC<Props> = ({ range }) => {
                 <ResponsiveContainer width="100%" height={130}>
                   <PieChart>
                     <Pie data={nvr ?? []} cx="50%" cy="50%" innerRadius={38} outerRadius={58} dataKey="count" stroke="none">
-                      {(nvr ?? []).map((_, i) => <Cell key={i} fill={nvrColors[i]} />)}
+                      {(nvr ?? []).map((_: any, i: number) => <Cell key={i} fill={nvrColors[i]} />)}
                     </Pie>
                     <Tooltip formatter={(v: number) => [fmtNum(v) + " customers"]} />
                   </PieChart>

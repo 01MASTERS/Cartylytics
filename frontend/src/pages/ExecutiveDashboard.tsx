@@ -35,7 +35,7 @@ export const ExecutiveDashboard: React.FC<Props> = ({ range }) => {
   return (
     <div>
       {/* KPI row */}
-      <div style={{ ...grid, gridTemplateColumns: "repeat(auto-fill, minmax(200px,1fr))", marginBottom: 24 }}>
+      <div className="kpi-grid">
         <KpiCard label="Total Revenue"     value={kpis ? fmt$(kpis.total_revenue, true) : "—"} growth={kpis?.revenue_growth_pct}   accent="blue"   loading={kL} />
         <KpiCard label="Total Profit"      value={kpis ? fmt$(kpis.total_profit,  true) : "—"} growth={kpis?.profit_growth_pct}    accent="green"  loading={kL} />
         <KpiCard label="Total Orders"      value={kpis ? fmtNum(kpis.total_orders)      : "—"} sub="Excl. returns & cancellations" accent="purple" loading={kL} />
@@ -74,7 +74,7 @@ export const ExecutiveDashboard: React.FC<Props> = ({ range }) => {
       </ChartCard>
 
       {/* Category bar charts */}
-      <div style={{ ...grid, gridTemplateColumns: "1fr 1fr" }}>
+      <div className="chart-grid">
         <ChartCard title="Revenue by Category">
           {cL
             ? <div style={{ height: 200, background: "var(--bg-card2)", borderRadius: 6 }} />

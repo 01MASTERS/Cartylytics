@@ -208,22 +208,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({ range, onChange }) => {
   const QUICK: [string, number][] = [["30d", 30], ["90d", 90], ["1Y", 365], ["All", 1100]];
 
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
-      background: "var(--bg-card)", border: "1px solid var(--border)",
-      borderRadius: "var(--radius)", padding: "10px 16px", marginBottom: 24,
-    }}>
-      <label style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>From</label>
-      <input type="date" style={inputStyle} value={local.startDate || ""}
-        onChange={e => setLocal({ ...local, startDate: e.target.value })} />
-      <label style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>To</label>
-      <input type="date" style={inputStyle} value={local.endDate || ""}
-        onChange={e => setLocal({ ...local, endDate: e.target.value })} />
-      <button onClick={() => onChange(local)} style={{
-        background: "var(--accent)", color: "white", border: "none",
-        borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer",
-      }}>Apply</button>
-      <div style={{ display: "flex", gap: 4, marginLeft: 4 }}>
+    <div className="filter-bar">
+      <div className="filter-inputs">
+        <label style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>From</label>
+        <input type="date" style={inputStyle} value={local.startDate || ""}
+          onChange={e => setLocal({ ...local, startDate: e.target.value })} />
+        <label style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>To</label>
+        <input type="date" style={inputStyle} value={local.endDate || ""}
+          onChange={e => setLocal({ ...local, endDate: e.target.value })} />
+        <button onClick={() => onChange(local)} style={{
+          background: "var(--accent)", color: "white", border: "none",
+          borderRadius: 6, padding: "6px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer",
+        }}>Apply</button>
+      </div>
+      <div className="filter-quick">
         {QUICK.map(([l, d]) => (
           <button key={l} onClick={() => quick(d)} style={{
             background: "var(--bg)", border: "1px solid var(--border-2)", color: "var(--text-muted)",
