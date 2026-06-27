@@ -90,7 +90,7 @@ export const CustomerDashboard: React.FC<Props> = ({ range }) => {
             }}
           />
         </div>
-        <div style={{ overflowX: "auto" }}>
+        <div className="table-wrapper">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
               <tr>

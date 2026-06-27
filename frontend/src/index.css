@@ -269,3 +269,31 @@ input, select { font-family: inherit; }
   margin-top: 16px;
 }
 
+
+/* Fix grid children minimum width so inner tables can scroll instead of stretching parents */
+.chart-grid > *, .chart-grid-2-1 > *, .kpi-grid > *, .geo-grid > * {
+  min-width: 0;
+}
+
+/* Ensure table wrappers have touch scrolling on mobile */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+/* Ensure the scrollbar is styled beautifully */
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-card2);
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--text-dim);
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
