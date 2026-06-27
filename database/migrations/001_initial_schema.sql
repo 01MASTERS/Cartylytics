@@ -3,11 +3,7 @@
 -- Database Schema v1.0
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS cartlytics
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE cartlytics;
+-- Database created via Aiven console
 
 -- ============================================================
 -- CATEGORIES
