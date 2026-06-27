@@ -25,6 +25,7 @@ const PAGE_META: Record<PageId, { title: string; sub: string }> = {
 export default function App() {
   const [page,  setPage]  = useState<PageId>("executive");
   const [range, setRange] = useState<DateRange>({ startDate: "2022-01-01", endDate: "2024-09-30" });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const meta     = PAGE_META[page];
   const PageComp = {
@@ -36,8 +37,14 @@ export default function App() {
 
   return (
     <div className="app-layout">
+      {/* ── Sidebar Overlay (Mobile) ─────────────────────────── */}
+      <div 
+        className={`sidebar-overlay ${menuOpen ? 'open' : ''}`} 
+        onClick={() => setMenuOpen(false)} 
+      />
+
       {/* ── Sidebar ────────────────────────────────────────────── */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
         {/* Logo */}
         <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid var(--border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 700, letterSpacing: "-0.4px" }}>
@@ -60,7 +67,7 @@ export default function App() {
           <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase",
             color: "var(--text-muted)", padding: "8px 8px 10px" }}>Dashboards</div>
           {NAV.map(n => (
-            <button key={n.id} onClick={() => setPage(n.id)} className={`sidebar-nav-btn ${page === n.id ? 'active' : ''}`} style={{
+            <button key={n.id} onClick={() => { setPage(n.id); setMenuOpen(false); }} className={`sidebar-nav-btn ${page === n.id ? 'active' : ''}`} style={{
               background:  page === n.id ? "var(--accent-glow)" : "none",
               color:       page === n.id ? "var(--accent)"      : "var(--text-dim)",
               borderLeft:  page === n.id ? "2px solid var(--accent)" : "2px solid transparent",
@@ -82,9 +89,14 @@ export default function App() {
       <main className="main-area">
         {/* Topbar */}
         <div className="topbar">
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>{meta.title}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{meta.sub}</div>
+          <div className="topbar-left">
+            <button className="mobile-menu-btn" onClick={() => setMenuOpen(true)}>
+              ☰
+            </button>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>{meta.title}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{meta.sub}</div>
+            </div>
           </div>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
             3,000 orders · 500 customers
