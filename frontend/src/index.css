@@ -157,6 +157,8 @@ input, select { font-family: inherit; }
 @media (max-width: 768px) {
   .app-layout {
     flex-direction: column;
+    overflow-x: hidden;
+    width: 100vw;
   }
   .sidebar {
     position: fixed;
@@ -257,5 +259,13 @@ input, select { font-family: inherit; }
   .dash-controls input {
     width: 100% !important;
   }
+}
+
+
+.pie-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 16px;
 }
 

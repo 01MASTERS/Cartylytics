@@ -124,11 +124,11 @@ export const ProductDashboard: React.FC<Props> = ({ range }) => {
               <Tooltip formatter={(v: number) => [fmt$(v, true), "Revenue"]} />
             </PieChart>
           </ResponsiveContainer>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+          <div className="pie-legend">
             {pieData.map((d: { name: string, value: number }, i: number) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-dim)" }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[i % COLORS.length], flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{d.name}</span>
+                <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</span>
                 <span style={{ fontFamily: "monospace", color: "var(--text)" }}>{fmt$(d.value, true)}</span>
               </div>
             ))}
